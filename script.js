@@ -315,6 +315,10 @@ const certPrevBtn = document.getElementById('certCarouselPrev');
 const certNextBtn = document.getElementById('certCarouselNext');
 
 if (certCarousel && certPrevBtn && certNextBtn) {
+    let autoSlideInterval;
+    const autoSlideDelay = 3000; // 3 seconds
+    let isAutoSliding = true;
+
     // Calculate scroll amount based on card width and gap
     const getScrollAmount = () => {
         const firstCard = certCarousel.querySelector('.certification-card');
@@ -333,9 +337,63 @@ if (certCarousel && certPrevBtn && certNextBtn) {
             left: direction === 'next' ? scrollAmount : -scrollAmount,
             behavior: 'smooth'
         });
+        resetAutoSlide();
+    };
+
+    // Auto-slide function
+    const startAutoSlide = () => {
+        if (!isAutoSliding) return;
+        autoSlideInterval = setInterval(() => {
+            scrollCarousel('next');
+        }, autoSlideDelay);
+    };
+
+    // Reset auto-slide
+    const resetAutoSlide = () => {
+        clearInterval(autoSlideInterval);
+        if (isAutoSliding) {
+            startAutoSlide();
+        }
     };
 
     // Event listeners for arrow buttons
     certPrevBtn.addEventListener('click', () => scrollCarousel('prev'));
     certNextBtn.addEventListener('click', () => scrollCarousel('next'));
+
+    // Pause auto-slide on hover
+    certCarousel.addEventListener('mouseenter', () => {
+        clearInterval(autoSlideInterval);
+    });
+
+    // Resume auto-slide on mouse leave
+    certCarousel.addEventListener('mouseleave', () => {
+        if (isAutoSliding) {
+            startAutoSlide();
+        }
+    });
+
+    // Also pause on carousel wrapper hover
+    document.querySelector('.carousel-wrapper').addEventListener('mouseenter', () => {
+        clearInterval(autoSlideInterval);
+    });
+
+    document.querySelector('.carousel-wrapper').addEventListener('mouseleave', () => {
+        if (isAutoSliding) {
+            startAutoSlide();
+        }
+    });
+
+    // Start auto-slide on load
+    startAutoSlide();
+
+    // Pause auto-slide on touch for mobile
+    certCarousel.addEventListener('touchstart', () => {
+        clearInterval(autoSlideInterval);
+    });
+
+    certCarousel.addEventListener('touchend', () => {
+        if (isAutoSliding) {
+            startAutoSlide();
+        }
+    });
 }
